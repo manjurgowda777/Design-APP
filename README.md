@@ -78,7 +78,7 @@ We believe your system diagrams and network topologies belong solely to you:
 - **Zero Telemetry on Canvas Data:** No node labels, network designs, or code snippets are transmitted to external servers.
 - **BYOK Privacy:** API keys remain strictly in your browser session.
 
-See our full [Privacy & Data Handling Policy](PRIVACY.md).
+See our full [Privacy & Data Handling Policy](PRIVACY.md) and [Security Policy](SECURITY.md).
 
 ---
 
