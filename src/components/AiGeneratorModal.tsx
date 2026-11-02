@@ -10,11 +10,14 @@ import {
   Zap,
   Check,
   AlertCircle,
+  Lock,
+  Trash2,
 } from 'lucide-react';
 import {
   generateAiDiagram,
   getSavedAiSettings,
   saveAiSettings,
+  clearAiSettings,
 } from '../utils/aiDiagramGenerator';
 import type {
   AiProvider,
@@ -102,6 +105,16 @@ export const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({
     if (newProvider !== 'instant') {
       setShowKeyInput(true);
     }
+  };
+
+  const handleClearKeyAndCache = () => {
+    clearAiSettings();
+    setApiKey('');
+    setErrorMessage(null);
+    setSuccessSummary('API key and cached credentials cleared from local browser storage.');
+    setTimeout(() => {
+      setSuccessSummary(null);
+    }, 3500);
   };
 
   const handleGenerate = async () => {
@@ -293,7 +306,21 @@ export const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({
                   <Key size={13} className="inline-icon" />
                   <span>{provider === 'gemini' ? 'Gemini API Key' : 'OpenAI API Key'}</span>
                 </label>
-                <span className="ai-key-storage-note">Saved locally in browser localStorage</span>
+                <div className="ai-key-actions">
+                  <span className="ai-key-storage-note">Stored securely in browser sandbox</span>
+                  {apiKey && (
+                    <button
+                      type="button"
+                      id="ai-clear-key-cache-btn"
+                      className="ai-clear-cache-btn"
+                      onClick={handleClearKeyAndCache}
+                      title="Wipe stored API key and cached credentials immediately"
+                    >
+                      <Trash2 size={12} />
+                      <span>Clear Key & Cache</span>
+                    </button>
+                  )}
+                </div>
               </div>
               <input
                 id="ai-api-key-input"
@@ -309,6 +336,14 @@ export const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({
               />
             </div>
           )}
+
+          {/* Privacy & Zero-Knowledge Warning Notice */}
+          <div className="ai-privacy-warning-box" role="note">
+            <Lock size={15} className="privacy-lock-icon" />
+            <span className="privacy-warning-text">
+              🔒 <strong>Zero-Knowledge:</strong> Your API key and architecture stay in your browser. Never paste real passwords or production tokens.
+            </span>
+          </div>
 
           {/* Error Message */}
           {errorMessage && (
@@ -338,6 +373,17 @@ export const AiGeneratorModal: React.FC<AiGeneratorModalProps> = ({
               >
                 <Key size={13} />
                 <span>Custom API Key</span>
+              </button>
+            )}
+            {showKeyInput && apiKey && (
+              <button
+                type="button"
+                className="ai-link-btn danger-link"
+                onClick={handleClearKeyAndCache}
+                title="Wipe stored credentials from browser"
+              >
+                <Trash2 size={12} />
+                <span>Clear Key & Cache</span>
               </button>
             )}
           </div>

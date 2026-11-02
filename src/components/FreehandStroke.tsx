@@ -1,5 +1,6 @@
 import React from 'react';
 import type { FreehandStroke as FreehandStrokeType } from '../types/canvas';
+import { sanitizeColor, sanitizeNumber } from '../utils/sanitizer';
 
 interface FreehandStrokeProps {
   stroke: FreehandStrokeType;
@@ -8,25 +9,30 @@ interface FreehandStrokeProps {
 }
 
 /**
- * Generates a smooth SVG path through a series of points using quadratic bezier midpoints
+ * Generates a smooth SVG path through a series of points using quadratic bezier midpoints.
+ * Safely filters out non-finite coordinates to prevent SVG path injection.
  */
 export function getSvgPathFromPoints(points: { x: number; y: number }[]): string {
-  if (points.length === 0) return '';
-  if (points.length === 1) {
-    return `M ${points[0].x} ${points[0].y} L ${points[0].x + 0.1} ${points[0].y + 0.1}`;
+  if (!Array.isArray(points) || points.length === 0) return '';
+  const safePoints = points.filter(
+    (p) => p && typeof p.x === 'number' && typeof p.y === 'number' && Number.isFinite(p.x) && Number.isFinite(p.y)
+  );
+  if (safePoints.length === 0) return '';
+  if (safePoints.length === 1) {
+    return `M ${safePoints[0].x} ${safePoints[0].y} L ${safePoints[0].x + 0.1} ${safePoints[0].y + 0.1}`;
   }
 
-  let path = `M ${points[0].x} ${points[0].y}`;
+  let path = `M ${safePoints[0].x} ${safePoints[0].y}`;
 
-  for (let i = 1; i < points.length - 1; i++) {
-    const current = points[i];
-    const next = points[i + 1];
+  for (let i = 1; i < safePoints.length - 1; i++) {
+    const current = safePoints[i];
+    const next = safePoints[i + 1];
     const midX = (current.x + next.x) / 2;
     const midY = (current.y + next.y) / 2;
     path += ` Q ${current.x} ${current.y}, ${midX} ${midY}`;
   }
 
-  const last = points[points.length - 1];
+  const last = safePoints[safePoints.length - 1];
   path += ` L ${last.x} ${last.y}`;
 
   return path;
@@ -40,8 +46,9 @@ export const FreehandStroke: React.FC<FreehandStrokeProps> = ({
   if (!stroke.points || stroke.points.length === 0) return null;
 
   const pathData = getSvgPathFromPoints(stroke.points);
-  const strokeColor = isSelected ? '#38bdf8' : stroke.color || '#f43f5e';
-  const strokeWidth = isSelected ? (stroke.strokeWidth || 3) + 2 : stroke.strokeWidth || 3;
+  const strokeColor = isSelected ? '#38bdf8' : sanitizeColor(stroke.color, '#f43f5e');
+  const baseWidth = sanitizeNumber(stroke.strokeWidth, 3);
+  const strokeWidth = isSelected ? baseWidth + 2 : baseWidth;
 
   return (
     <g

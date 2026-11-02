@@ -22,17 +22,70 @@ export interface GeneratedDiagramResult {
   summary: string;
 }
 
-const SETTINGS_STORAGE_KEY = 'architecture_ai_settings_v1';
+const OBFUSCATED_STORAGE_KEY = '__arch_sec_llm_k';
+const LEGACY_STORAGE_KEY = 'architecture_ai_settings_v1';
+const OBF_SALT = 0x5a;
+
+function obfuscatePayload(data: unknown): string {
+  try {
+    const json = JSON.stringify(data);
+    const codeUnits = new Uint16Array(json.length);
+    for (let i = 0; i < json.length; i++) {
+      codeUnits[i] = json.charCodeAt(i) ^ OBF_SALT;
+    }
+    return btoa(String.fromCharCode(...new Uint8Array(codeUnits.buffer)));
+  } catch {
+    return btoa(JSON.stringify(data));
+  }
+}
+
+function deobfuscatePayload<T>(encoded: string): T | null {
+  try {
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    const codeUnits = new Uint16Array(bytes.buffer);
+    let result = '';
+    for (let i = 0; i < codeUnits.length; i++) {
+      result += String.fromCharCode(codeUnits[i] ^ OBF_SALT);
+    }
+    return JSON.parse(result) as T;
+  } catch {
+    try {
+      return JSON.parse(atob(encoded)) as T;
+    } catch {
+      return null;
+    }
+  }
+}
 
 export function getSavedAiSettings(): AiSettings {
   try {
-    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        provider: parsed.provider || 'gemini',
-        apiKey: parsed.apiKey || '',
+    // 1. Check obfuscated storage
+    const rawObf = localStorage.getItem(OBFUSCATED_STORAGE_KEY);
+    if (rawObf) {
+      const parsed = deobfuscatePayload<{ provider?: AiProvider; apiKey?: string }>(rawObf);
+      if (parsed) {
+        return {
+          provider: parsed.provider || 'gemini',
+          apiKey: parsed.apiKey || '',
+        };
+      }
+    }
+
+    // 2. Fallback check & migrate from legacy storage
+    const legacyRaw = localStorage.getItem(LEGACY_STORAGE_KEY);
+    if (legacyRaw) {
+      const legacyParsed = JSON.parse(legacyRaw);
+      const migrated: AiSettings = {
+        provider: legacyParsed.provider || 'gemini',
+        apiKey: legacyParsed.apiKey || '',
       };
+      saveAiSettings(migrated);
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+      return migrated;
     }
   } catch (e) {
     console.warn('Failed to load AI settings from localStorage', e);
@@ -45,9 +98,22 @@ export function getSavedAiSettings(): AiSettings {
 
 export function saveAiSettings(settings: AiSettings): void {
   try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+    const payload = obfuscatePayload(settings);
+    localStorage.setItem(OBFUSCATED_STORAGE_KEY, payload);
+    // Remove any leftover legacy key
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
   } catch (e) {
     console.warn('Failed to save AI settings to localStorage', e);
+  }
+}
+
+export function clearAiSettings(): void {
+  try {
+    localStorage.removeItem(OBFUSCATED_STORAGE_KEY);
+    localStorage.removeItem(LEGACY_STORAGE_KEY);
+    sessionStorage.removeItem(OBFUSCATED_STORAGE_KEY);
+  } catch (e) {
+    console.warn('Failed to clear AI settings', e);
   }
 }
 

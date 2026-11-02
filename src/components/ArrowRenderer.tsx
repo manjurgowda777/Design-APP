@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import type { ArrowElement, NodeElement, Point } from '../types/canvas';
 import { getAnchorPoint, buildOrthogonalPath } from '../utils/math';
+import { sanitizeText, sanitizeColor } from '../utils/sanitizer';
 
 interface ArrowRendererProps {
   arrow: ArrowElement;
@@ -81,7 +82,7 @@ export const ArrowRenderer: React.FC<ArrowRendererProps> = ({
 
   const headLength = 12;
   const headAngle  = Math.PI / 6;
-  const arrowColor  = isWalkthroughFocused ? '#38bdf8' : isSelected ? '#38bdf8' : arrow.color || '#94a3b8';
+  const arrowColor  = isWalkthroughFocused ? '#38bdf8' : isSelected ? '#38bdf8' : sanitizeColor(arrow.color, '#94a3b8');
   const strokeWidth = isWalkthroughFocused ? (arrow.strokeWidth || 2) + 1.8 : isSelected ? (arrow.strokeWidth || 2) + 1 : arrow.strokeWidth || 2;
   const isDashed    = arrow.strokeStyle === 'dashed';
   const dashArray   = isDashed ? `${strokeWidth * 3} ${strokeWidth * 3}` : undefined;
@@ -259,8 +260,8 @@ export const ArrowRenderer: React.FC<ArrowRendererProps> = ({
               fontWeight={isWalkthroughFocused ? 700 : 600}
             >
               {isWalkthroughFocused && typeof stepNumber === 'number'
-                ? `STEP ${stepNumber}${hasLabel ? `: ${arrow.label}` : ''}`
-                : arrow.label}
+                ? `STEP ${stepNumber}${hasLabel ? `: ${sanitizeText(arrow.label)}` : ''}`
+                : sanitizeText(arrow.label)}
             </text>
           )}
         </g>

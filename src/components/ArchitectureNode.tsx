@@ -19,6 +19,7 @@ import {
   Cloud,
   Info,
 } from 'lucide-react';
+import { sanitizeText, sanitizeColor } from '../utils/sanitizer';
 
 interface ArchitectureNodeProps {
   node: NodeElement;
@@ -263,7 +264,7 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
         />
       ) : (
         <div className="arch-node-title" title="Double click to edit title">
-          {node.label}
+          {sanitizeText(node.label)}
         </div>
       )}
     </div>
@@ -278,7 +279,8 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
 
     let portDisplay = '';
     if (meta.port) {
-      const rawPort = meta.port.split('/')[0].trim();
+      const cleanPort = sanitizeText(meta.port);
+      const rawPort = cleanPort.split('/')[0].trim();
       portDisplay = rawPort.startsWith(':') ? rawPort : `:${rawPort}`;
     }
 
@@ -291,11 +293,11 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
     const envColor = meta.environment ? envColorMap[meta.environment] : undefined;
 
     const tooltipText = [
-      node.label,
-      meta.techStack ? `Engine: ${meta.techStack}` : null,
-      meta.port ? `Port: ${meta.port}` : null,
-      meta.environment ? `Env: ${meta.environment.toUpperCase()}` : null,
-      meta.notes ? `Notes: ${meta.notes}` : null,
+      sanitizeText(node.label),
+      meta.techStack ? `Engine: ${sanitizeText(meta.techStack)}` : null,
+      meta.port ? `Port: ${sanitizeText(meta.port)}` : null,
+      meta.environment ? `Env: ${sanitizeText(meta.environment).toUpperCase()}` : null,
+      meta.notes ? `Notes: ${sanitizeText(meta.notes)}` : null,
     ]
       .filter(Boolean)
       .join('\n');
@@ -340,7 +342,7 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
             />
           )}
           {portDisplay ? (
-            <span className="meta-badge-text">{portDisplay}</span>
+            <span className="meta-badge-text">{sanitizeText(portDisplay)}</span>
           ) : (
             <Info size={10} className="meta-badge-info-icon" />
           )}
@@ -351,7 +353,7 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
 
   // Render Tailored SVG Silhouettes based on Component Type
   const renderShapeBody = () => {
-    const stroke = isSelected ? '#38bdf8' : node.strokeColor || theme.defaultBorder;
+    const stroke = isSelected ? '#38bdf8' : sanitizeColor(node.strokeColor, theme.defaultBorder);
     const strokeWidth = isSelected ? 2.5 : node.strokeWidth || 1.5;
     const w = node.width;
     const h = node.height;
@@ -399,7 +401,7 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
           <foreignObject x={16} y={15} width={Math.min(w - 32, 192)} height={20}>
             <div className="arch-container-header">
               <span className="arch-container-icon">{theme.icon}</span>
-              <span className="arch-container-label">{node.label}</span>
+              <span className="arch-container-label">{sanitizeText(node.label)}</span>
             </div>
           </foreignObject>
           {renderMetadataBadge()}
@@ -1103,7 +1105,7 @@ export const ArchitectureNode: React.FC<ArchitectureNodeProps> = ({
                 className="arch-node-badge"
                 style={{ color: theme.badgeColor, borderColor: `${theme.badgeColor}40` }}
               >
-                {node.subtitle || theme.tag}
+                {sanitizeText(node.subtitle || theme.tag)}
               </span>
             </div>
           </foreignObject>
