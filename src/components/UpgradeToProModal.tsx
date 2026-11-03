@@ -90,7 +90,7 @@ export const UpgradeToProModal: React.FC<UpgradeToProModalProps> = ({
             </div>
             <div>
               <div className="upgrade-tagline">
-                <span className="pro-gradient-text">ARCHITECTURE WHITEBOARD PRO</span>
+                <span className="pro-gradient-text">ARCHITECTURE STUDIO PRO</span>
                 <span className="pro-pill-badge">PRO PLAN</span>
               </div>
               <h2 id="upgrade-modal-title" className="modal-title upgrade-title">

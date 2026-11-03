@@ -49,6 +49,7 @@ import {
   downloadMarkdownFile,
   copyToClipboard,
 } from './utils/specGenerator';
+import { saveFileLocally } from './utils/electronBridge';
 import { CheckCircle2, AlertCircle, X as CloseIcon } from 'lucide-react';
 import type { GeneratedDiagramResult } from './utils/aiDiagramGenerator';
 import type { ArchitectureTemplate } from './data/templates';
@@ -1362,7 +1363,7 @@ export function App() {
   }, [viewport, pushHistorySnapshot]);
 
   // Export JSON functionality
-  const handleExportJson = () => {
+  const handleExportJson = async () => {
     const data: DiagramData = {
       version: 1,
       timestamp: Date.now(),
@@ -1371,18 +1372,18 @@ export function App() {
       strokes,
       viewport,
     };
-    const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
-      JSON.stringify(data, null, 2)
-    )}`;
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', jsonString);
-    downloadAnchor.setAttribute(
-      'download',
-      `architecture-diagram-${Date.now()}.json`
+    const jsonContent = JSON.stringify(data, null, 2);
+    const result = await saveFileLocally(
+      `architecture-diagram-${Date.now()}.json`,
+      jsonContent,
+      [{ name: 'Architecture Diagram (JSON)', extensions: ['json'] }]
     );
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
+    if (result.success) {
+      showToast(
+        result.filePath ? `Saved diagram to ${result.filePath}` : 'Diagram JSON downloaded!',
+        'success'
+      );
+    }
   };
 
   // Import JSON functionality
@@ -1429,21 +1430,22 @@ export function App() {
   };
 
   // Export SVG Vector File
-  const handleExportSvg = () => {
+  const handleExportSvg = async () => {
     const clone = getPreparedSvgElement();
     if (!clone) return;
 
     const svgString = new XMLSerializer().serializeToString(clone);
-    const blob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.href = url;
-    downloadAnchor.download = `architecture-diagram-${Date.now()}.svg`;
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-    URL.revokeObjectURL(url);
+    const result = await saveFileLocally(
+      `architecture-diagram-${Date.now()}.svg`,
+      svgString,
+      [{ name: 'Vector Graphic (SVG)', extensions: ['svg'] }]
+    );
+    if (result.success) {
+      showToast(
+        result.filePath ? `Saved SVG to ${result.filePath}` : 'SVG downloaded!',
+        'success'
+      );
+    }
   };
 
   // Export PNG High-Res Image
@@ -1474,12 +1476,19 @@ export function App() {
           ctx.drawImage(img, 0, 0, width, height);
 
           const pngUrl = canvas.toDataURL('image/png');
-          const downloadAnchor = document.createElement('a');
-          downloadAnchor.href = pngUrl;
-          downloadAnchor.download = `architecture-diagram-${Date.now()}.png`;
-          document.body.appendChild(downloadAnchor);
-          downloadAnchor.click();
-          downloadAnchor.remove();
+          saveFileLocally(
+            `architecture-diagram-${Date.now()}.png`,
+            pngUrl,
+            [{ name: 'High-Res Image (PNG)', extensions: ['png'] }],
+            true
+          ).then((result) => {
+            if (result.success) {
+              showToast(
+                result.filePath ? `Saved PNG to ${result.filePath}` : 'High-Res PNG downloaded!',
+                'success'
+              );
+            }
+          });
         }
       } catch (err) {
         console.warn('Canvas export tainted or restricted, falling back to SVG vector download:', err);

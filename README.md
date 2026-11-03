@@ -1,8 +1,7 @@
-# System Architecture & Workflow Canvas
+# Architecture Studio
 
-An interactive, two-in-one system design whiteboard and architecture modeler equipped with specialized component silhouettes, dynamic orthogonal connectors, AI-assisted diagram generation, and architectural health auditing.
+A modern, high-performance web and offline desktop architecture diagramming studio built for developers and system architects. Design cloud topologies, simulate network traffic, estimate AWS/GCP/Azure infrastructure costs, run security & reliability audits, collaborate in real time, and export specifications as code.
 
-[![Build Status](https://github.com/manjurgowda777/Design-APP/actions/workflows/deploy.yml/badge.svg)](https://github.com/manjurgowda777/Design-APP/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6.svg)](https://www.typescriptlang.org/)
@@ -10,63 +9,98 @@ An interactive, two-in-one system design whiteboard and architecture modeler equ
 
 ---
 
-## 🚀 Key Features
+## Features
 
-* **Functional Architecture Silhouettes:** Distinct geometries for databases (cylinders), queues (pipes), gateways (trapezoids), microservices, serverless functions, and mobile clients.
-* **AI Prompt-to-Architecture:** Describe a system in natural language to generate fully bound canvas topologies with BYOK (Bring Your Own Key) support for OpenAI and Google Gemini.
-* **Smart Connectors:** Right-angled orthogonal lines with snap anchors, protocol labels, and animated data flow simulation.
-* **Architecture Health Linter & Cloud Cost:** Flags anti-patterns (such as direct client-to-database connections and single points of failure) alongside real-time AWS/GCP/Azure monthly infrastructure cost estimates.
-* **Live Multi-User Collaboration:** Instant peer synchronization powered by `BroadcastChannel` with live matrix-aware remote cursors and shareable room hashes.
-* **Interactive Presentation Mode:** Step-by-step request flow walkthroughs (Client → Gateway → Service → DB) with dimmed spotlight framing and technical notes.
-* **Diagram-as-Code & Spec Export:** Export to Markdown Architecture Decision Records (ADR), two-way Mermaid.js strings, PNG, SVG, and JSON snapshots.
-* **Zero-Knowledge Privacy:** 100% client-side persistence in `localStorage`; no diagrams or credentials ever leave your browser.
+### 1. Interactive Infinite Canvas
+- **Infinite Pan & Zoom:** Smooth zoom centered on cursor, trackpad pinch, and space/hand pan.
+- **Smart Guides & Snap-to-Grid:** Magnetic alignment guides for rapid, neat layout design.
+- **Functional Silhouettes:** Tailored SVG shapes that represent component behavior (cylindrical databases, pipe-shaped queues, inverted trapezoid gateways, and serverless hexagons).
+- **Freehand Pen & Marquee Selection:** Freehand annotation and lasso multi-selection.
+
+### 2. Live Multi-User Collaboration
+- **Zero-Backend Peer Sync:** Real-time synchronization across browser tabs and windows powered by `BroadcastChannel` with room hash routing (`#room=<id>`).
+- **Remote Cursors:** View live cursor movements and name badges in collaborator-assigned colors with matrix-aware zoom compensation.
+- **Collaborator Presence:** Top bar avatar cluster showing active users and a one-click **Share Board** button.
+
+### 3. Architecture Audit & Cloud Cost Suite
+- **Live Cloud Cost Estimator:** Real-time baseline monthly cost estimation for Compute, Storage, and Networking.
+- **Security & Reliability Linter:** Detects critical architectural flaws (such as frontend clients bypassing gateways to connect directly to databases) and orphan nodes.
+
+### 4. AI Prompt-to-Diagram Generator
+- Generate complete architecture diagrams from natural language descriptions (e.g., *"E-commerce app with Redis cache, Stripe webhook, and Postgres DB"*).
+- Bring Your Own Key (BYOK) support for OpenAI and Google Gemini with offline/sample template fallbacks.
+
+### 5. Diagram-as-Code & Spec Export
+- **Mermaid.js Integration:** Live two-way Mermaid.js diagram definition generator ready to copy directly into GitHub READMEs and Notion.
+- **Architecture Specification (ADR):** One-click export to comprehensive Markdown architecture specifications with inventory tables, protocols, and cost summaries.
+- **Export Formats:** PNG, SVG, JSON snapshot, and Markdown Spec.
+
+### 6. Interactive Presentation / Request Walkthrough Mode
+- Step-by-step sequential walkthrough engine (Client -> Gateway -> Service -> DB).
+- Spotlight viewport framing with dimmed background, neon component glows, and step narrative tooltips.
 
 ---
 
-## 🛠️ Tech Stack
-
-* **Engine:** React 19, TypeScript, Vector SVG Rendering Engine
-* **Styling & UI:** Modern Dark Glassmorphic CSS, Lucide Icons
-* **Build Tool:** Vite 8
-* **CI/CD:** GitHub Actions (Automated TypeCheck & Linting)
-
----
-
-## 📦 Getting Started
+## Getting Started
 
 ### Prerequisites
-* Node.js 18+
-* npm or yarn
+- Node.js 18+
+- npm or yarn
 
 ### Installation
 ```bash
+# Clone the repository
 git clone https://github.com/manjurgowda777/Design-APP.git
+
+# Navigate to project folder
 cd Design-APP
+
+# Install dependencies
 npm install
+
+# Start local development server
 npm run dev
 ```
 
 Visit `http://localhost:5173/` in your browser.
 
-### Production Build & Verification
+### 🖥️ Run as Offline Desktop App (Electron)
+The application can run as a native, 100% offline desktop application with direct local disk storage:
+
+```bash
+# Run the offline desktop app in development
+npm run electron:dev
+
+# Run directly from local built assets
+npm run electron:start
+
+# Package standalone offline executable (.exe)
+npm run electron:pack
+```
+
+The standalone executable is created at:
+```
+release/win-unpacked/Architecture Studio.exe
+```
+
+### Building for Web Production
 ```bash
 npm run build
-npm run lint
 ```
 
 ---
 
-## 🔒 Privacy & Security
+## Privacy & Security
 
 We believe your system diagrams and network topologies belong solely to you:
-* **Zero-Knowledge Storage:** Canvas items, descriptions, and credentials remain exclusively within your browser's local sandbox (`localStorage`).
-* **Zero Telemetry on Canvas Data:** No node labels, network designs, or code snippets are transmitted to external servers.
-* **BYOK Key Privacy:** Custom LLM API keys are stored with client-side obfuscation or in session memory and can be cleared instantly.
+- **Zero-Knowledge Storage:** Canvas data, inspector metadata, and credentials stay in your browser's `localStorage`.
+- **Zero Telemetry on Canvas Data:** No node labels, network designs, or code snippets are transmitted to external servers.
+- **BYOK Privacy:** API keys remain strictly in your browser session.
 
-For more details, see our [Privacy Policy](PRIVACY.md) and [Security Policy](SECURITY.md).
+See our full [Privacy & Data Handling Policy](PRIVACY.md) and [Security Policy](SECURITY.md).
 
 ---
 
-## 📄 License
+## License
 
 Distributed under the [MIT License](LICENSE). Copyright (c) 2026 Manjunath.

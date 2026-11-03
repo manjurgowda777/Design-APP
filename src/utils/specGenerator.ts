@@ -1,6 +1,7 @@
 import type { NodeElement, ArrowElement } from '../types/canvas';
 import { generateMermaidDiagram } from './mermaid';
 import { estimateArchitectureCost } from './costEstimator';
+import { saveFileLocally } from './electronBridge';
 
 export interface ArchitectureSpecOptions {
   title?: string;
@@ -16,7 +17,7 @@ export interface ArchitectureSpecOptions {
  */
 export function generateArchitectureSpec(options: ArchitectureSpecOptions): string {
   const {
-    title = 'Cloud Architecture Whiteboard System',
+    title = 'Cloud Architecture Studio System',
     nodes,
     arrows,
     healthScore,
@@ -143,7 +144,7 @@ export function generateArchitectureSpec(options: ArchitectureSpecOptions): stri
   lines.push(`4. **Cost Optimization:** Review baseline monthly allocations periodically against actual cloud utilization metrics.\n`);
 
   lines.push(`---`);
-  lines.push(`*Generated automatically by Architecture Whiteboard Studio.*`);
+  lines.push(`*Generated automatically by Architecture Studio.*`);
 
   return lines.join('\n');
 }
@@ -164,21 +165,17 @@ function capitalize(text: string): string {
 }
 
 /**
- * Triggers a browser download of the generated Markdown file.
+ * Triggers a browser download or native Electron local file save of the generated Markdown file.
  */
-export function downloadMarkdownFile(
+export async function downloadMarkdownFile(
   content: string,
   filename: string = 'architecture-specification.md'
-): void {
-  const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
+): Promise<void> {
+  await saveFileLocally(
+    filename,
+    content,
+    [{ name: 'Architecture Decision Record (Markdown)', extensions: ['md'] }]
+  );
 }
 
 /**
