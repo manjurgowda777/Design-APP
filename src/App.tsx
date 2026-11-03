@@ -1418,9 +1418,9 @@ export function App() {
 
   // Helper to extract clean SVG content with inline styling
   const getPreparedSvgElement = (): SVGSVGElement | null => {
-    const svgElem = document.getElementById(
-      'architecture-canvas-svg'
-    ) as SVGSVGElement | null;
+    const svgElem =
+      document.querySelector<SVGSVGElement>('#architecture-canvas-svg') ||
+      (document.getElementById('architecture-canvas-svg') as unknown as SVGSVGElement | null);
     if (!svgElem) return null;
 
     const clone = svgElem.cloneNode(true) as SVGSVGElement;
