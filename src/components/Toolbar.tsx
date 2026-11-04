@@ -28,7 +28,6 @@ import {
   Tv,
 } from 'lucide-react';
 import type { ToolMode, ViewPerspective } from '../types/canvas';
-import type { UserTier, ProFeature } from '../utils/tierManager';
 
 interface ToolbarProps {
   currentTool: ToolMode;
@@ -59,8 +58,6 @@ interface ToolbarProps {
   healthScore?: number;
   criticalIssueCount?: number;
   onOpenAudit?: (tab?: 'audit' | 'cost') => void;
-  userTier?: UserTier;
-  onOpenUpgradeModal?: (feature: ProFeature) => void;
 }
 
 export const Toolbar: React.FC<ToolbarProps> = ({
@@ -92,8 +89,6 @@ export const Toolbar: React.FC<ToolbarProps> = ({
   healthScore = 100,
   criticalIssueCount = 0,
   onOpenAudit,
-  userTier = 'free',
-  onOpenUpgradeModal,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -284,23 +279,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
 
         <button
           className="toolbar-btn blueprint-btn"
-          onClick={() => {
-            if (userTier === 'free' && onOpenUpgradeModal) {
-              onOpenUpgradeModal('cloud-templates');
-            } else {
-              onOpenTemplates?.();
-            }
-          }}
-          title={
-            userTier === 'free'
-              ? 'Starter Architecture Blueprints (Requires Pro)'
-              : 'Starter Architecture Blueprints (3-Tier, Microservices, AI/ML)'
-          }
+          onClick={onOpenTemplates}
+          title="Starter Architecture Blueprints (3-Tier, Microservices, AI/ML)"
           aria-label="Architecture Templates"
         >
           <LayoutTemplate size={16} color="#38bdf8" />
           <span className="btn-label-sm">Templates</span>
-          {userTier === 'free' && <span className="pro-pill-badge-tiny">PRO</span>}
         </button>
 
         <button
@@ -350,23 +334,12 @@ export const Toolbar: React.FC<ToolbarProps> = ({
             <button
               id="toolbar-cost-btn"
               className="toolbar-btn cost-pill-btn"
-              onClick={() => {
-                if (userTier === 'free' && onOpenUpgradeModal) {
-                  onOpenUpgradeModal('cloud-cost');
-                } else {
-                  onOpenAudit('cost');
-                }
-              }}
-              title={
-                userTier === 'free'
-                  ? 'Click to unlock live itemized Cloud Cost Breakdown (Requires Pro)'
-                  : 'Click to view detailed itemized Cloud Cost Breakdown'
-              }
+              onClick={() => onOpenAudit('cost')}
+              title="Click to view detailed itemized Cloud Cost Breakdown"
               aria-label="Estimated Cloud Cost"
             >
               <DollarSign size={14} color="#10b981" />
               <span className="cost-pill-text">~${totalMonthlyCost.toFixed(0)}/mo</span>
-              {userTier === 'free' && <span className="pro-pill-badge-tiny">PRO</span>}
             </button>
           </div>
 
@@ -418,40 +391,19 @@ export const Toolbar: React.FC<ToolbarProps> = ({
           <button
             id="toolbar-export-spec-btn"
             className="toolbar-btn spec-btn"
-            title={
-              userTier === 'free'
-                ? 'Download Architecture Specification (Requires Pro)'
-                : 'Download Architecture Specification (Markdown / ADR)'
-            }
-            onClick={() => {
-              if (userTier === 'free' && onOpenUpgradeModal) {
-                onOpenUpgradeModal('export-spec');
-              } else {
-                onExportSpec?.();
-              }
-            }}
+            title="Download Architecture Specification (Markdown / ADR)"
+            onClick={onExportSpec}
             aria-label="Export Spec Markdown"
           >
             <FileText size={16} color="#38bdf8" />
             <span className="btn-label-sm">Spec (MD)</span>
-            {userTier === 'free' && <span className="pro-pill-badge-tiny">PRO</span>}
           </button>
           {onCopySpec && (
             <button
               id="toolbar-copy-spec-btn"
               className="toolbar-btn spec-copy-btn"
-              title={
-                userTier === 'free'
-                  ? 'Copy Architecture Specification (Requires Pro)'
-                  : 'Copy Architecture Specification Markdown to Clipboard'
-              }
-              onClick={() => {
-                if (userTier === 'free' && onOpenUpgradeModal) {
-                  onOpenUpgradeModal('export-spec');
-                } else {
-                  onCopySpec();
-                }
-              }}
+              title="Copy Architecture Specification Markdown to Clipboard"
+              onClick={onCopySpec}
               aria-label="Copy Spec to Clipboard"
             >
               <Copy size={13} color="#94a3b8" />

@@ -61,10 +61,10 @@ export const TIER_PERMISSIONS = {
     basicPngSvgJson: true,
     byokAiGenerator: true,
     architectureAudit: true,
-    cloudCostBreakdown: false,
-    exportSpecMarkdown: false,
-    cloudTemplates: false,
-    export4kPdf: false,
+    cloudCostBreakdown: true,
+    exportSpecMarkdown: true,
+    cloudTemplates: true,
+    export4kPdf: true,
   },
   pro: {
     unlimitedDrawing: true,
@@ -82,18 +82,10 @@ export const TIER_PERMISSIONS = {
 const TIER_STORAGE_KEY = 'architecture_user_tier_v1';
 
 /**
- * Returns current user tier from localStorage or defaults to 'free'.
+ * Returns current user tier. All features are fully unlocked ('pro').
  */
 export function getUserTier(): UserTier {
-  try {
-    const saved = localStorage.getItem(TIER_STORAGE_KEY);
-    if (saved === 'pro' || saved === 'free') {
-      return saved;
-    }
-  } catch (e) {
-    console.warn('Failed to read user tier from storage', e);
-  }
-  return 'free';
+  return 'pro';
 }
 
 /**
@@ -109,19 +101,8 @@ export function setUserTier(tier: UserTier): void {
 
 /**
  * Evaluates whether the user's tier has access to a specific gated feature.
+ * All features are 100% unlocked and accessible.
  */
-export function hasFeatureAccess(tier: UserTier, feature: ProFeature): boolean {
-  if (tier === 'pro') return true;
-  switch (feature) {
-    case 'export-spec':
-      return TIER_PERMISSIONS[tier].exportSpecMarkdown;
-    case 'export-4k':
-      return TIER_PERMISSIONS[tier].export4kPdf;
-    case 'cloud-cost':
-      return TIER_PERMISSIONS[tier].cloudCostBreakdown;
-    case 'cloud-templates':
-      return TIER_PERMISSIONS[tier].cloudTemplates;
-    default:
-      return false;
-  }
+export function hasFeatureAccess(_tier: UserTier, _feature: ProFeature): boolean {
+  return true;
 }

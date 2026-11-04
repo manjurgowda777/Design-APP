@@ -26,10 +26,7 @@ import {
   Terminal,
   FileText,
   CheckCircle2,
-  Crown,
 } from 'lucide-react';
-import type { UserTier } from '../utils/tierManager';
-import { setUserTier } from '../utils/tierManager';
 
 interface InspectorDrawerProps {
   node: NodeElement | null;
@@ -38,8 +35,6 @@ interface InspectorDrawerProps {
   onUpdateNode: (nodeId: string, updates: Partial<NodeElement>) => void;
   onDeleteNode?: (nodeId: string) => void;
   onDuplicateNode?: (nodeId: string) => void;
-  userTier?: UserTier;
-  onTierChange?: (tier: UserTier) => void;
 }
 
 const TECH_STACK_SUGGESTIONS = [
@@ -103,8 +98,6 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
   onUpdateNode,
   onDeleteNode,
   onDuplicateNode,
-  userTier = 'free',
-  onTierChange,
 }) => {
   // Local form state
   const [label, setLabel] = useState('');
@@ -420,48 +413,6 @@ export const InspectorDrawer: React.FC<InspectorDrawerProps> = ({
             />
           </div>
         </div>
-
-        {/* Section 6: Dev Mode Tier Gate Testing */}
-        {onTierChange && (
-          <div className="inspector-section inspector-tier-section">
-            <label className="inspector-section-label">
-              <Zap size={13} className="section-icon" color="#f59e0b" />
-              <span>Dev Testing: Active Tier Gate</span>
-            </label>
-            <div className="inspector-field">
-              <div className="inspector-tier-switcher-box">
-                <span className="tier-switcher-help">Switch tier to test feature access & gating:</span>
-                <div className="inspector-tier-pill-group" role="group">
-                  <button
-                    type="button"
-                    id="dev-tier-toggle-free-btn"
-                    className={`inspector-tier-btn ${userTier === 'free' ? 'active' : ''}`}
-                    onClick={() => {
-                      setUserTier('free');
-                      onTierChange('free');
-                    }}
-                    title="Switch to Free Tier (Standard features, gated advanced tools)"
-                  >
-                    Free Tier
-                  </button>
-                  <button
-                    type="button"
-                    id="dev-tier-toggle-pro-btn"
-                    className={`inspector-tier-btn pro-tier ${userTier === 'pro' ? 'active' : ''}`}
-                    onClick={() => {
-                      setUserTier('pro');
-                      onTierChange('pro');
-                    }}
-                    title="Switch to Pro Tier (All enterprise features unlocked)"
-                  >
-                    <Crown size={12} color="#f59e0b" />
-                    <span>Pro Tier</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Drawer Action Footer */}

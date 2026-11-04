@@ -27,9 +27,6 @@ import { AuditModal } from './components/AuditModal';
 import { PresentationBar } from './components/PresentationBar';
 import { CollaborationBar } from './components/CollaborationBar';
 import { RemoteCursors } from './components/RemoteCursors';
-import { UpgradeToProModal } from './components/UpgradeToProModal';
-import { getUserTier, setUserTier } from './utils/tierManager';
-import type { UserTier, ProFeature } from './utils/tierManager';
 import {
   CollaborationClient,
   getLocalUser,
@@ -292,27 +289,6 @@ export function App() {
       setToast(null);
     }, 3500);
   }, []);
-
-  // User Tier Gate & Feature Flag State ('free' | 'pro')
-  const [userTier, setUserTierState] = useState<UserTier>(() => getUserTier());
-  const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
-  const [upgradeTargetFeature, setUpgradeTargetFeature] = useState<ProFeature | null>(null);
-
-  const handleOpenUpgradeModal = useCallback((feature: ProFeature) => {
-    setUpgradeTargetFeature(feature);
-    setIsUpgradeModalOpen(true);
-  }, []);
-
-  const handleTierChange = useCallback((newTier: UserTier) => {
-    setUserTier(newTier);
-    setUserTierState(newTier);
-    showToast(
-      newTier === 'pro'
-        ? '⚡ Pro Tier activated! All enterprise features are unlocked.'
-        : 'Switched to Free Tier.',
-      'info'
-    );
-  }, [showToast]);
 
   // Live Multi-User Collaboration State
   const [localUser] = useState<PeerUser>(() => getLocalUser());
@@ -1649,8 +1625,6 @@ export function App() {
             setAuditInitialTab(tab);
             setIsAuditModalOpen(true);
           }}
-          userTier={userTier}
-          onOpenUpgradeModal={handleOpenUpgradeModal}
         />
       )}
 
@@ -1687,8 +1661,6 @@ export function App() {
           onUpdateNode={handleUpdateNode}
           onDeleteNode={handleDeleteSelected}
           onDuplicateNode={handleDuplicateSelected}
-          userTier={userTier}
-          onTierChange={handleTierChange}
         />
       )}
 
@@ -1723,16 +1695,6 @@ export function App() {
         arrows={arrows}
         onHighlightNode={handleHighlightNode}
         initialTab={auditInitialTab}
-        userTier={userTier}
-        onOpenUpgradeModal={handleOpenUpgradeModal}
-      />
-
-      {/* Pro Tier Upgrade Access Modal */}
-      <UpgradeToProModal
-        isOpen={isUpgradeModalOpen}
-        onClose={() => setIsUpgradeModalOpen(false)}
-        targetFeature={upgradeTargetFeature}
-        onTierChange={handleTierChange}
       />
 
       {/* SVG Pan & Zoom Canvas */}

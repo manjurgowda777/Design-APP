@@ -11,7 +11,6 @@ import {
   TrendingDown,
 } from 'lucide-react';
 import type { NodeElement, ArrowElement } from '../types/canvas';
-import type { UserTier, ProFeature } from '../utils/tierManager';
 import { auditArchitectureGraph } from '../utils/architectureLinter';
 import { estimateArchitectureCost } from '../utils/costEstimator';
 
@@ -22,8 +21,6 @@ interface AuditModalProps {
   arrows: ArrowElement[];
   onHighlightNode: (nodeId: string) => void;
   initialTab?: 'audit' | 'cost';
-  userTier?: UserTier;
-  onOpenUpgradeModal?: (feature: ProFeature) => void;
 }
 
 export const AuditModal: React.FC<AuditModalProps> = ({
@@ -33,8 +30,6 @@ export const AuditModal: React.FC<AuditModalProps> = ({
   arrows,
   onHighlightNode,
   initialTab = 'audit',
-  userTier = 'free',
-  onOpenUpgradeModal,
 }) => {
   const [activeTab, setActiveTab] = useState<'audit' | 'cost'>(initialTab);
   const [severityFilter, setSeverityFilter] = useState<'all' | 'critical' | 'warning' | 'notice'>('all');
@@ -131,23 +126,13 @@ export const AuditModal: React.FC<AuditModalProps> = ({
           <button
             type="button"
             className={`audit-tab-btn ${activeTab === 'cost' ? 'active' : ''}`}
-            onClick={() => {
-              if (userTier === 'free' && onOpenUpgradeModal) {
-                onOpenUpgradeModal('cloud-cost');
-              } else {
-                setActiveTab('cost');
-              }
-            }}
+            onClick={() => setActiveTab('cost')}
           >
             <DollarSign size={15} />
             <span>Cloud Cost Estimator</span>
-            {userTier === 'free' ? (
-              <span className="pro-pill-badge-tiny">PRO</span>
-            ) : (
-              <span className="audit-tab-cost-pill">
-                ${costEstimate.totalMonthlyCost.toFixed(2)}/mo
-              </span>
-            )}
+            <span className="audit-tab-cost-pill">
+              ${costEstimate.totalMonthlyCost.toFixed(2)}/mo
+            </span>
           </button>
         </div>
 
